@@ -35,6 +35,18 @@ class ProductsFetched extends ProductsState {
   List<Object?> get props => [products];
 }
 
+class ProductLiked extends ProductsState {
+  const ProductLiked({
+    required super.products,
+    required this.product,
+  });
+
+  final Product product;
+
+  @override
+  List<Object?> get props => [product];
+}
+
 class ProductsError extends ProductsState {
   const ProductsError({
     required super.products,

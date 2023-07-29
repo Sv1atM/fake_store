@@ -32,4 +32,19 @@ class ProductsCubit extends Cubit<ProductsState> {
       );
     }
   }
+
+  void favoriteToggle(Product product) {
+    final isFavorite = product.isFavorite;
+    final updatedItem = product.copyWith(isFavorite: !isFavorite);
+
+    emit(
+      ProductLiked(
+        products: [
+          for (final item in state.products)
+            if (item.id == product.id) updatedItem else item,
+        ],
+        product: updatedItem,
+      ),
+    );
+  }
 }

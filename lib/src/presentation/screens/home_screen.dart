@@ -1,9 +1,7 @@
-import 'dart:math';
-
 import 'package:fake_store/resources/resources.dart';
 import 'package:fake_store/src/data/models/models.dart';
 import 'package:fake_store/src/domain/controllers/controllers.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fake_store/src/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,10 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _searchFieldController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _random = Random();
 
   late ThemeData _theme;
-  late Orientation _orientation;
   late EdgeInsets _viewPadding;
 
   Future<void> _onLogOutPressed() => context.read<AuthCubit>().logOut();
@@ -29,57 +25,72 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _onProductsListRefresh() =>
       context.read<ProductsCubit>().refreshList();
 
+  void _onMenuButtonPressed() => _scaffoldKey.currentState?.openDrawer();
+
   // TODO(Sv1atM): add search action
   void _onSearchButtonPressed() => throw UnimplementedError();
 
-  void _onMenuButtonPressed() => _scaffoldKey.currentState?.openDrawer();
+  // TODO(Sv1atM): add product pressed action
+  void _onProductPressed(Product product) => throw UnimplementedError();
 
-  String _convertPrice(double value) => '\$ ${value.toStringAsFixed(2)}';
+  void _onLikePressed(Product product) =>
+      context.read<ProductsCubit>().favoriteToggle(product);
+
+  // TODO(Sv1atM): add cart pressed action
+  void _onCartPressed() => throw UnimplementedError();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _theme = Theme.of(context);
-    _orientation = MediaQuery.orientationOf(context);
     _viewPadding = MediaQuery.viewPaddingOf(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: _drawer(),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: _menuButton(),
-                ),
-                Expanded(child: _searchField()),
-                const SizedBox(width: 15),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.bottomCenter,
+    return BlocListener<ProductsCubit, ProductsState>(
+      listener: (context, state) {
+        if (state is ProductsError) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(content: Text(state.errorMessage)),
+            );
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          scrolledUnderElevation: 0,
+          flexibleSpace: SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15),
+            bottom: false,
+            child: Center(
+              child: Row(
                 children: [
-                  Positioned.fill(child: _productsList()),
-                  Positioned(
-                    bottom: _viewPadding.bottom + 2,
-                    child: _cartButton(),
-                  ),
+                  _menuButton(),
+                  const SizedBox(width: 15),
+                  Expanded(child: _searchField()),
                 ],
               ),
             ),
-          ],
+          ),
         ),
+        body: SafeArea(
+          bottom: false,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Positioned.fill(child: _productsList()),
+              Positioned(
+                bottom: _viewPadding.bottom + 2,
+                child: _cartButton(),
+              ),
+            ],
+          ),
+        ),
+        drawer: _drawer(),
       ),
     );
   }
@@ -116,17 +127,28 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFEEEEEE),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 5,
+            horizontal: 12,
+          ),
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(21.391),
           ),
           suffixIcon: IconButton(
             onPressed: _onSearchButtonPressed,
-            icon: const Icon(
-              CupertinoIcons.search,
-              color: Color(0xFFA0A0A0),
+            padding: EdgeInsets.zero,
+            icon: SvgPicture.asset(
+              SvgPictures.search,
+              colorFilter: const ColorFilter.mode(
+                Color(0xFFA0A0A0),
+                BlendMode.srcIn,
+              ),
             ),
+            iconSize: 17.83,
           ),
+          suffixIconConstraints: const BoxConstraints(maxHeight: 34),
         ),
         onTapOutside: (_) => FocusScope.of(context).unfocus(),
       );
@@ -166,15 +188,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.fromLTRB(26, 0, 26, _viewPadding.bottom),
+                padding: EdgeInsets.fromLTRB(
+                  26,
+                  0,
+                  26,
+                  _viewPadding.bottom + 68,
+                ),
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _productView(items[index]),
+                    (context, index) => ProductView(
+                      items[index],
+                      onPressed: _onProductPressed,
+                      onLikePressed: _onLikePressed,
+                    ),
                     childCount: items.length,
                   ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        (_orientation == Orientation.portrait) ? 2 : 4,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 9,
                     childAspectRatio: 157 / 181,
@@ -186,120 +216,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  Widget _productView(Product product) {
-    const maxRate = 5;
-    // TODO(Sv1atM): use real product rate
-    final rate = _random.nextInt(maxRate + 1);
-
-    // TODO(Sv1atM): make _productView tappable
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(11),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            offset: const Offset(0, 4.5288),
-            blurRadius: 3.28338,
+  Widget _cartButton() => ElevatedButton(
+        onPressed: _onCartPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _theme.colorScheme.primary,
+          foregroundColor: _theme.colorScheme.onPrimary,
+          fixedSize: const Size.square(55),
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.29),
           ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            offset: const Offset(0, 12.52155),
-            blurRadius: 9.07813,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            offset: const Offset(0, 30.14707),
-            blurRadius: 21.85663,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 100),
-            blurRadius: 72.5,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Center(
-              child: Image.network(product.image),
-            ),
-          ),
-          const SizedBox(height: 2),
-          ShaderMask(
-            shaderCallback: LinearGradient(
-              colors: [
-                Colors.white,
-                Colors.white.withOpacity(0),
-              ],
-              stops: const [0.64, 1],
-            ).createShader,
-            child: Text(
-              product.title,
-              style: const TextStyle(
-                color: Color(0xFF313131),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Wrap(
-            spacing: 2.35,
-            children: List.generate(
-              maxRate,
-              (index) => SizedBox.square(
-                dimension: 4.7143,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: (index < rate)
-                        ? const Color(0xFFFFD646)
-                        : const Color(0xFFE6E6E6),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                _convertPrice(product.price),
-                style: const TextStyle(
-                  color: Color(0xFF313131),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // TODO(Sv1atM): make _cartButton tappable
-  Widget _cartButton() => Container(
-        width: 55,
-        height: 55,
-        decoration: BoxDecoration(
-          color: _theme.colorScheme.primary,
-          borderRadius: BorderRadius.circular(5.29),
+          elevation: 0,
         ),
-        child: SvgPicture.asset(
-          SvgPictures.sacola,
-          width: 25.58,
-          height: 22.59,
-          fit: BoxFit.scaleDown,
-          colorFilter: ColorFilter.mode(
-            _theme.colorScheme.onPrimary,
-            BlendMode.srcIn,
-          ),
-        ),
+        child: SvgPicture.asset(SvgPictures.cart),
       );
 }

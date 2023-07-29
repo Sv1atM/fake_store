@@ -73,12 +73,12 @@ class _AppState extends State<App> {
               color: Color(0xFF9D9D9D),
               fontSize: 14,
             ),
-            contentPadding: EdgeInsets.all(8),
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           ),
           useMaterial3: true,
           fontFamily: FontFamily.poppins,
         ),
-        // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       ),
     );
   }

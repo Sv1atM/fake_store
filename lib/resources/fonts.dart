@@ -5,4 +5,5 @@ class FontFamily {
 
   static const String poppins = 'Poppins';
   static const String prata = 'Prata';
+  static const String appIcons = 'AppIcons';
 }

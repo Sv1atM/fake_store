@@ -26,6 +26,7 @@ mixin _$Product {
   String get category => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   String get image => throw _privateConstructorUsedError;
+  bool get isFavorite => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,7 +44,8 @@ abstract class $ProductCopyWith<$Res> {
       double price,
       String category,
       String description,
-      String image});
+      String image,
+      bool isFavorite});
 }
 
 /// @nodoc
@@ -65,6 +67,7 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
     Object? category = null,
     Object? description = null,
     Object? image = null,
+    Object? isFavorite = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -91,6 +94,10 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String,
+      isFavorite: null == isFavorite
+          ? _value.isFavorite
+          : isFavorite // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -108,7 +115,8 @@ abstract class _$$_ProductCopyWith<$Res> implements $ProductCopyWith<$Res> {
       double price,
       String category,
       String description,
-      String image});
+      String image,
+      bool isFavorite});
 }
 
 /// @nodoc
@@ -127,6 +135,7 @@ class __$$_ProductCopyWithImpl<$Res>
     Object? category = null,
     Object? description = null,
     Object? image = null,
+    Object? isFavorite = null,
   }) {
     return _then(_$_Product(
       id: null == id
@@ -153,20 +162,26 @@ class __$$_ProductCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String,
+      isFavorite: null == isFavorite
+          ? _value.isFavorite
+          : isFavorite // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$_Product implements _Product {
+class _$_Product extends _Product {
   const _$_Product(
       {required this.id,
       required this.title,
       required this.price,
       required this.category,
       required this.description,
-      required this.image});
+      required this.image,
+      this.isFavorite = false})
+      : super._();
 
   factory _$_Product.fromJson(Map<String, dynamic> json) =>
       _$$_ProductFromJson(json);
@@ -183,10 +198,13 @@ class _$_Product implements _Product {
   final String description;
   @override
   final String image;
+  @override
+  @JsonKey()
+  final bool isFavorite;
 
   @override
   String toString() {
-    return 'Product(id: $id, title: $title, price: $price, category: $category, description: $description, image: $image)';
+    return 'Product(id: $id, title: $title, price: $price, category: $category, description: $description, image: $image, isFavorite: $isFavorite)';
   }
 
   @override
@@ -201,13 +219,15 @@ class _$_Product implements _Product {
                 other.category == category) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.image, image) || other.image == image));
+            (identical(other.image, image) || other.image == image) &&
+            (identical(other.isFavorite, isFavorite) ||
+                other.isFavorite == isFavorite));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, title, price, category, description, image);
+  int get hashCode => Object.hash(
+      runtimeType, id, title, price, category, description, image, isFavorite);
 
   @JsonKey(ignore: true)
   @override
@@ -223,14 +243,16 @@ class _$_Product implements _Product {
   }
 }
 
-abstract class _Product implements Product {
+abstract class _Product extends Product {
   const factory _Product(
       {required final int id,
       required final String title,
       required final double price,
       required final String category,
       required final String description,
-      required final String image}) = _$_Product;
+      required final String image,
+      final bool isFavorite}) = _$_Product;
+  const _Product._() : super._();
 
   factory _Product.fromJson(Map<String, dynamic> json) = _$_Product.fromJson;
 
@@ -246,6 +268,8 @@ abstract class _Product implements Product {
   String get description;
   @override
   String get image;
+  @override
+  bool get isFavorite;
   @override
   @JsonKey(ignore: true)
   _$$_ProductCopyWith<_$_Product> get copyWith =>

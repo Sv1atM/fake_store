@@ -38,29 +38,32 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: padding,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - padding.vertical,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _titleText(),
-                    const SizedBox(height: 80),
-                    _usernameField(),
-                    const SizedBox(height: 24),
-                    _passwordField(),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _forgotPasswordButton(),
-                    ),
-                    const SizedBox(height: 20),
-                    _logInButton(),
-                  ],
+          builder: (context, constraints) => Center(
+            child: SingleChildScrollView(
+              padding: padding,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - padding.vertical,
+                  maxWidth: 560,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _titleText(),
+                      const SizedBox(height: 80),
+                      _usernameField(),
+                      const SizedBox(height: 24),
+                      _passwordField(),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _forgotPasswordButton(),
+                      ),
+                      const SizedBox(height: 20),
+                      _logInButton(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -108,7 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
               }),
               // TODO(Sv1atM): use proper icon
               icon: const Icon(Icons.remove_red_eye_outlined),
+              iconSize: 14.44,
             ),
+            suffixIconConstraints: const BoxConstraints(maxHeight: 34),
           ),
           obscureText: _obscurePassword,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),

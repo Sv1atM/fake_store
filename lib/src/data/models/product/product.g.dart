@@ -13,6 +13,7 @@ _$_Product _$$_ProductFromJson(Map<String, dynamic> json) => _$_Product(
       category: json['category'] as String,
       description: json['description'] as String,
       image: json['image'] as String,
+      isFavorite: json['isFavorite'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$_ProductToJson(_$_Product instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$$_ProductToJson(_$_Product instance) =>
       'category': instance.category,
       'description': instance.description,
       'image': instance.image,
+      'isFavorite': instance.isFavorite,
     };
